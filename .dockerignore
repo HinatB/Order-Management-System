@@ -1,0 +1,9 @@
+.git
+.m2
+target
+**/target
+.idea
+.vscode
+*.iml
+*.log
+.DS_Store

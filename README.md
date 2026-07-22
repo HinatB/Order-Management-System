@@ -4,6 +4,140 @@
 
 核心策略：不要零散学习很多框架，而是围绕一个能讲清楚的后端项目，把 Java、Spring Boot、数据库、Kafka、Redis、测试、Docker/Kubernetes、可观测性和系统设计串起来。
 
+## 当前项目进度
+
+当前已生成第 1 个月的 `order-service` 初始版本。
+
+已包含：
+
+- Maven 多模块项目结构
+- Spring Boot REST API
+- PostgreSQL 配置
+- Flyway 数据库迁移
+- Spring Data JPA 实体和 Repository
+- DTO、参数校验、统一异常响应
+- 订单创建、订单查询、订单状态更新
+- JUnit 5 + Mockito 单元测试
+- MockMvc API 集成测试
+
+### 本地启动
+
+启动 PostgreSQL：
+
+```bash
+docker compose up -d postgres
+```
+
+启动服务：
+
+```bash
+mvn -pl order-service spring-boot:run
+```
+
+运行测试：
+
+```bash
+mvn test
+```
+
+### API 示例
+
+创建订单：
+
+```bash
+curl -X POST http://localhost:8080/api/orders \
+  -H 'Content-Type: application/json' \
+  -d '{"customerId":"customer-001","totalAmount":99.90}'
+```
+
+查询订单：
+
+```bash
+curl http://localhost:8080/api/orders/{orderId}
+```
+
+更新订单状态：
+
+```bash
+curl -X PATCH http://localhost:8080/api/orders/{orderId}/status \
+  -H 'Content-Type: application/json' \
+  -d '{"status":"PAID"}'
+```
+
+### 本周学习重点
+
+读代码时重点理解：
+
+- `controller` 负责 HTTP 请求和响应
+- `service` 负责业务逻辑和事务边界
+- `repository` 负责数据库访问
+- `domain` 负责核心业务对象和状态规则
+- `dto` 负责 API 入参和出参
+- `exception` 负责统一错误响应
+
+本周先把 `POST /api/orders`、`GET /api/orders/{id}`、`PATCH /api/orders/{id}/status` 这三条链路讲清楚。
+
+### 阿里云服务器部署
+
+当前项目可以部署到 2 核 2GiB 云服务器。建议这台机器第 1 个月只跑：
+
+- `order-service`
+- PostgreSQL
+
+暂时不要同时跑 Kafka、Redis、Prometheus、Grafana 等组件。
+
+服务器需要安装：
+
+- Git
+- Docker
+- Docker Compose 插件
+
+在服务器上拉取代码后，进入项目目录：
+
+```bash
+cp .env.server.example .env.server
+```
+
+编辑 `.env.server`，把 `POSTGRES_PASSWORD` 改成强密码。
+
+启动：
+
+```bash
+docker compose --env-file .env.server -f compose.server.yml up -d --build
+```
+
+查看状态：
+
+```bash
+docker compose --env-file .env.server -f compose.server.yml ps
+```
+
+查看日志：
+
+```bash
+docker compose --env-file .env.server -f compose.server.yml logs -f order-service
+```
+
+测试健康检查：
+
+```bash
+curl http://服务器公网IP:8080/actuator/health
+```
+
+创建订单：
+
+```bash
+curl -X POST http://服务器公网IP:8080/api/orders \
+  -H 'Content-Type: application/json' \
+  -d '{"customerId":"customer-001","totalAmount":99.90}'
+```
+
+安全提醒：
+
+- 阿里云安全组只开放 `8080` 给你自己的 IP。
+- 不要开放 PostgreSQL 的 `5432` 到公网。
+- 当前项目还没加登录和 JWT，不建议直接暴露给所有公网 IP。
+
 1. 最终目标
 
 3 到 4 个月后，你应该能做到：
