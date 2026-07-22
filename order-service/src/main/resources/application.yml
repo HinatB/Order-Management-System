@@ -2,7 +2,7 @@ spring:
   application:
     name: order-service
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/order_management}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/postgres}
     username: ${SPRING_DATASOURCE_USERNAME:oms}
     password: ${SPRING_DATASOURCE_PASSWORD:oms}
   jpa:

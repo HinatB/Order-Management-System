@@ -106,6 +106,31 @@ cp .env.server.example .env.server
 docker compose --env-file .env.server -f compose.server.yml up -d --build
 ```
 
+如果不想在服务器上编译 Maven 项目，可以在本机先打 jar，再用轻量 Compose 部署。
+
+本机打包：
+
+```bash
+mvn clean package
+mkdir -p deploy
+cp order-service/target/order-service-0.0.1-SNAPSHOT.jar deploy/order-service.jar
+```
+
+把这些文件传到服务器：
+
+```bash
+tar --exclude='.git' --exclude='.m2' --exclude='target' --exclude='*/target' \
+  -czf /tmp/order-management-system-deploy.tar.gz \
+  compose.jar.yml .env.server.example deploy order-service/Dockerfile.jar
+```
+
+服务器解压后启动：
+
+```bash
+cp .env.server.example .env.server
+docker compose --env-file .env.server -f compose.jar.yml up -d --build
+```
+
 查看状态：
 
 ```bash
