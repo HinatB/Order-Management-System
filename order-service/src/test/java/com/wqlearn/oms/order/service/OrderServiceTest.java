@@ -73,4 +73,37 @@ class OrderServiceTest {
                 .containsOnly("customer-001");
         verify(orderRepository).findByCustomerIdOrderByCreatedAtDesc("customer-001");
     }
+
+    @Test
+    void updateStatusMarksOrderAsPaid() {
+        OrderEntity order = OrderEntity.create("customer-001", new BigDecimal("99.90"));
+        when(orderRepository.findById(order.getId())).thenReturn(Optional.of(order));
+
+        OrderResponse response = orderService.updateStatus(order.getId(), OrderStatus.PAID);
+
+        assertThat(response.status()).isEqualTo(OrderStatus.PAID);
+        verify(orderRepository).findById(order.getId());
+    }
+
+    @Test
+    void updateStatusRejectsCancellingPaidOrder() {
+        OrderEntity order = OrderEntity.create("customer-001", new BigDecimal("99.90"));
+        order.markAsPaid();
+        when(orderRepository.findById(order.getId())).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> orderService.updateStatus(order.getId(), OrderStatus.CANCELLED))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Paid order cannot be cancelled");
+    }
+
+    @Test
+    void updateStatusRejectsPayingCancelledOrder() {
+        OrderEntity order = OrderEntity.create("customer-001", new BigDecimal("99.90"));
+        order.cancel();
+        when(orderRepository.findById(order.getId())).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> orderService.updateStatus(order.getId(), OrderStatus.PAID))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Cancelled order cannot be paid");
+    }
 }

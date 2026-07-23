@@ -111,4 +111,41 @@ class OrderControllerIntegrationTest {
                 .andExpect(jsonPath("$[0].customerId").value("customer-day-2"))
                 .andExpect(jsonPath("$[1].customerId").value("customer-day-2"));
     }
+
+    @Test
+    void cancelingPaidOrderReturnsConflict() throws Exception {
+        String location = mockMvc.perform(post("/api/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "customerId": "customer-777",
+                                  "totalAmount": 19.99
+                                }
+                                """))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String orderId = location.replaceAll(".*\\\"id\\\":\\\"([^\\\"]+)\\\".*", "$1");
+
+        mockMvc.perform(patch("/api/orders/{orderId}/status", orderId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "status": "PAID"
+                                }
+                                """))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(patch("/api/orders/{orderId}/status", orderId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "status": "CANCELLED"
+                                }
+                                """))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Paid order cannot be cancelled"));
+    }
 }

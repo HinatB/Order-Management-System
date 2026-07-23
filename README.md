@@ -6,7 +6,9 @@
 
 ## 当前项目进度
 
-当前已生成第 1 个月的 `order-service` 初始版本。
+当前已完成第 1 个月的 `order-service` 定版。
+
+服务级说明见 [order-service/README.md](order-service/README.md)。
 
 已包含：
 
@@ -16,7 +18,7 @@
 - Flyway 数据库迁移
 - Spring Data JPA 实体和 Repository
 - DTO、参数校验、统一异常响应
-- 订单创建、订单查询、订单状态更新
+- 订单创建、订单查询、按客户查询、订单状态更新
 - JUnit 5 + Mockito 单元测试
 - MockMvc API 集成测试
 
@@ -54,6 +56,12 @@ curl -X POST http://localhost:8080/api/orders \
 
 ```bash
 curl http://localhost:8080/api/orders/{orderId}
+```
+
+按客户查询订单列表：
+
+```bash
+curl "http://localhost:8080/api/orders?customerId=customer-001"
 ```
 
 更新订单状态：
@@ -297,7 +305,7 @@ CI/CD: GitHub Actions optional
 - 一个可运行的 order-service
 - PostgreSQL + Flyway
 - 基础测试
-- 一份项目 README 初稿
+- 一份项目 README 定版
 - 30 个 Java/Spring/DB 面试问答
 
 5. 第 2 个月：Kafka、Redis、分布式可靠性
