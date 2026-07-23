@@ -71,4 +71,44 @@ class OrderControllerIntegrationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.fieldErrors", notNullValue()));
     }
+
+    @Test
+    void listOrdersByCustomer() throws Exception {
+        mockMvc.perform(post("/api/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "customerId": "customer-day-2",
+                                  "totalAmount": 79.90
+                                }
+                                """))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "customerId": "customer-day-2",
+                                  "totalAmount": 129.90
+                                }
+                                """))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "customerId": "another-customer",
+                                  "totalAmount": 39.90
+                                }
+                                """))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/orders")
+                        .param("customerId", "customer-day-2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].customerId").value("customer-day-2"))
+                .andExpect(jsonPath("$[1].customerId").value("customer-day-2"));
+    }
 }

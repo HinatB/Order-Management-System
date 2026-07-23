@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -55,5 +56,21 @@ class OrderServiceTest {
         assertThatThrownBy(() -> orderService.getOrder(orderId))
                 .isInstanceOf(OrderNotFoundException.class)
                 .hasMessageContaining(orderId.toString());
+    }
+
+    @Test
+    void listOrdersByCustomerReturnsMatchingOrders() {
+        OrderEntity firstOrder = OrderEntity.create("customer-001", new BigDecimal("99.90"));
+        OrderEntity secondOrder = OrderEntity.create("customer-001", new BigDecimal("199.90"));
+        when(orderRepository.findByCustomerIdOrderByCreatedAtDesc("customer-001"))
+                .thenReturn(List.of(firstOrder, secondOrder));
+
+        List<OrderResponse> responses = orderService.listOrdersByCustomer("customer-001");
+
+        assertThat(responses)
+                .hasSize(2)
+                .extracting(OrderResponse::customerId)
+                .containsOnly("customer-001");
+        verify(orderRepository).findByCustomerIdOrderByCreatedAtDesc("customer-001");
     }
 }

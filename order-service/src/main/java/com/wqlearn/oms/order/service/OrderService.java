@@ -9,6 +9,7 @@ import com.wqlearn.oms.order.repository.OrderRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -31,6 +32,14 @@ public class OrderService {
         return orderRepository.findById(orderId)
                 .map(this::toResponse)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderResponse> listOrdersByCustomer(String customerId) {
+        return orderRepository.findByCustomerIdOrderByCreatedAtDesc(customerId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     @Transactional

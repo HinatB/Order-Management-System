@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -36,6 +38,11 @@ public class OrderController {
     @GetMapping("/{orderId}")
     public OrderResponse getOrder(@PathVariable("orderId") UUID orderId) {
         return orderService.getOrder(orderId);
+    }
+
+    @GetMapping
+    public List<OrderResponse> listOrdersByCustomer(@RequestParam("customerId") String customerId) {
+        return orderService.listOrdersByCustomer(customerId);
     }
 
     @PatchMapping("/{orderId}/status")
