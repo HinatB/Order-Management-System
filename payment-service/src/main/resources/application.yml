@@ -1,6 +1,20 @@
 spring:
   application:
     name: payment-service
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/order_management}
+    username: ${SPRING_DATASOURCE_USERNAME:oms}
+    password: ${SPRING_DATASOURCE_PASSWORD:oms}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+    table: payment_flyway_schema_history
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     consumer:

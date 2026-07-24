@@ -7,7 +7,7 @@
 ## 当前项目进度
 
 当前已完成第 1 个月的 `order-service` 定版。
-当前正在进入第 2 个月：`order-service` 已完成 `order.created` Kafka 事件发布，`payment-service` 已开始消费 `order.created` 事件。
+当前正在进入第 2 个月：`order-service` 已完成 `order.created` Kafka 事件发布，`payment-service` 已能消费 `order.created` 并保存 `PENDING` 支付记录。
 
 服务级说明见 [order-service/README.md](order-service/README.md) 和 [payment-service/README.md](payment-service/README.md)。
 
@@ -21,7 +21,7 @@
 - DTO、参数校验、统一异常响应
 - 订单创建、订单查询、按客户查询、订单状态更新
 - 创建订单后发布 `order.created` Kafka 事件
-- `payment-service` 消费 `order.created` 后打印日志
+- `payment-service` 消费 `order.created` 后保存 `PENDING` payment 记录
 - JUnit 5 + Mockito 单元测试
 - MockMvc API 集成测试
 
