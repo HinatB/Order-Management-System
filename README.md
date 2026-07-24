@@ -7,9 +7,9 @@
 ## 当前项目进度
 
 当前已完成第 1 个月的 `order-service` 定版。
-当前正在进入第 2 个月第一步：`order-service` 已开始接入 Kafka 事件发布。
+当前正在进入第 2 个月：`order-service` 已完成 `order.created` Kafka 事件发布，`payment-service` 已开始搭建服务骨架。
 
-服务级说明见 [order-service/README.md](order-service/README.md)。
+服务级说明见 [order-service/README.md](order-service/README.md) 和 [payment-service/README.md](payment-service/README.md)。
 
 已包含：
 
@@ -21,6 +21,7 @@
 - DTO、参数校验、统一异常响应
 - 订单创建、订单查询、按客户查询、订单状态更新
 - 创建订单后发布 `order.created` Kafka 事件
+- `payment-service` 空服务骨架
 - JUnit 5 + Mockito 单元测试
 - MockMvc API 集成测试
 
@@ -32,10 +33,16 @@
 docker compose up -d postgres kafka kafka-ui
 ```
 
-启动服务：
+启动订单服务：
 
 ```bash
 mvn -pl order-service spring-boot:run
+```
+
+启动支付服务：
+
+```bash
+mvn -pl payment-service spring-boot:run
 ```
 
 运行测试：
@@ -45,6 +52,7 @@ mvn test
 ```
 
 Kafka UI：`http://localhost:8081`
+payment-service 健康检查：`http://localhost:8082/actuator/health`
 
 ### API 示例
 
