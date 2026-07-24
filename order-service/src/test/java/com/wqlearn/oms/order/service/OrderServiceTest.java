@@ -4,6 +4,7 @@ import com.wqlearn.oms.order.domain.OrderEntity;
 import com.wqlearn.oms.order.domain.OrderStatus;
 import com.wqlearn.oms.order.dto.CreateOrderRequest;
 import com.wqlearn.oms.order.dto.OrderResponse;
+import com.wqlearn.oms.order.event.OrderEventPublisher;
 import com.wqlearn.oms.order.exception.OrderNotFoundException;
 import com.wqlearn.oms.order.repository.OrderRepository;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,9 @@ class OrderServiceTest {
     @Mock
     private OrderRepository orderRepository;
 
+    @Mock
+    private OrderEventPublisher orderEventPublisher;
+
     @InjectMocks
     private OrderService orderService;
 
@@ -46,6 +50,7 @@ class OrderServiceTest {
         assertThat(response.totalAmount()).isEqualByComparingTo("99.90");
         assertThat(response.status()).isEqualTo(OrderStatus.CREATED);
         verify(orderRepository).save(any(OrderEntity.class));
+        verify(orderEventPublisher).publishOrderCreated(any(OrderEntity.class));
     }
 
     @Test

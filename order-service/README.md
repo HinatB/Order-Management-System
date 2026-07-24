@@ -10,6 +10,7 @@
 - 更新订单状态
 - PostgreSQL 持久化
 - Flyway 管理表结构
+- 创建订单后发布 `order.created` Kafka 事件
 - 参数校验和统一异常响应
 - JUnit 5 + Mockito 单元测试
 - MockMvc 集成测试
@@ -23,6 +24,7 @@
 - Spring Data JPA
 - Spring Validation
 - Flyway
+- Kafka
 - PostgreSQL
 - H2（测试）
 
@@ -101,11 +103,13 @@ curl -X PATCH http://localhost:8080/api/orders/{orderId}/status \
 
 ## 本地运行
 
-启动 PostgreSQL：
+启动本地基础设施：
 
 ```bash
-docker compose up -d postgres
+docker compose up -d postgres kafka kafka-ui
 ```
+
+确认本地 Kafka 已在 Docker Compose 中启动，并能通过 `localhost:9092` 访问。
 
 启动服务：
 
@@ -123,6 +127,15 @@ mvn test
 
 ```bash
 curl http://localhost:8080/actuator/health
+```
+
+查看订单创建事件：
+
+```bash
+docker exec -it kafka bash -lc "bin/kafka-console-consumer.sh \
+  --bootstrap-server localhost:9092 \
+  --topic order.created \
+  --from-beginning"
 ```
 
 ## Docker 部署
@@ -152,6 +165,7 @@ docker compose --env-file .env.server -f compose.jar.yml up -d --build
 ## 设计要点
 
 - `@Transactional` 放在 service 层
+- `order.created` 事件在订单事务提交后发送
 - JPA 实体负责最基础的状态约束
 - Flyway 管理建表和索引
 - 全局异常返回统一 JSON
@@ -164,13 +178,13 @@ docker compose --env-file .env.server -f compose.jar.yml up -d --build
 - `GET /api/orders/{orderId}`
 - `GET /api/orders?customerId=...`
 - `PATCH /api/orders/{orderId}/status`
+- 创建订单后发布 `order.created`
 - 单元测试
 - 集成测试
 - 状态流转冲突测试
 
 ## 下一步
 
-- Kafka 事件发布
 - Outbox Pattern
 - Redis 幂等或缓存
 - 拆分 payment-service

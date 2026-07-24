@@ -4,6 +4,7 @@ import com.wqlearn.oms.order.domain.OrderEntity;
 import com.wqlearn.oms.order.domain.OrderStatus;
 import com.wqlearn.oms.order.dto.CreateOrderRequest;
 import com.wqlearn.oms.order.dto.OrderResponse;
+import com.wqlearn.oms.order.event.OrderEventPublisher;
 import com.wqlearn.oms.order.exception.OrderNotFoundException;
 import com.wqlearn.oms.order.repository.OrderRepository;
 import org.springframework.stereotype.Service;
@@ -16,15 +17,19 @@ import java.util.UUID;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final OrderEventPublisher orderEventPublisher;
 
-    public OrderService(OrderRepository orderRepository) {
+    public OrderService(OrderRepository orderRepository, OrderEventPublisher orderEventPublisher) {
         this.orderRepository = orderRepository;
+        this.orderEventPublisher = orderEventPublisher;
     }
 
     @Transactional
     public OrderResponse createOrder(CreateOrderRequest request) {
         OrderEntity order = OrderEntity.create(request.customerId(), request.totalAmount());
-        return toResponse(orderRepository.save(order));
+        OrderEntity savedOrder = orderRepository.save(order);
+        orderEventPublisher.publishOrderCreated(savedOrder);
+        return toResponse(savedOrder);
     }
 
     @Transactional(readOnly = true)
